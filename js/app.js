@@ -1125,4 +1125,62 @@
     });
   }
 
+  /* ============================================================
+     LIVE CODING STATS (Hydrate dynamic stats from server/cache)
+     ============================================================ */
+  function initLiveCodingStats() {
+    if (!window.location.protocol.startsWith('http')) return;
+
+    fetch('/api/coding-stats')
+      .then(res => {
+        if (!res.ok) throw new Error('Stats API unavailable');
+        return res.json();
+      })
+      .then(data => {
+        if (!data) return;
+
+        // GitHub
+        if (data.github) {
+          const reposEl = document.querySelector('[data-stat="github-repos"]');
+          if (reposEl && data.github.repos) reposEl.textContent = data.github.repos;
+        }
+
+        // LeetCode
+        if (data.leetcode) {
+          const solvedEl = document.querySelector('[data-stat="leetcode-solved"]');
+          const ratingEl = document.querySelector('[data-stat="leetcode-rating"]');
+          const contestsEl = document.querySelector('[data-stat="leetcode-contests"]');
+
+          if (solvedEl && data.leetcode.solved) solvedEl.textContent = data.leetcode.solved;
+          if (ratingEl && data.leetcode.rating) ratingEl.textContent = data.leetcode.rating;
+          if (contestsEl && data.leetcode.contests !== undefined) contestsEl.textContent = data.leetcode.contests;
+        }
+
+        // CodeChef
+        if (data.codechef) {
+          const solvedEl = document.querySelector('[data-stat="codechef-solved"]');
+          const ratingEl = document.querySelector('[data-stat="codechef-rating"]');
+          const contestsEl = document.querySelector('[data-stat="codechef-contests"]');
+
+          if (solvedEl && data.codechef.solved) solvedEl.textContent = data.codechef.solved;
+          if (ratingEl && data.codechef.rating) ratingEl.textContent = `${data.codechef.rating} (${data.codechef.division || 'Div 4'})`;
+          if (contestsEl && data.codechef.contests) contestsEl.textContent = data.codechef.contests;
+        }
+
+        // Codeforces
+        if (data.codeforces) {
+          const ratingEl = document.querySelector('[data-stat="codeforces-rating"]');
+          const rankEl = document.querySelector('[data-stat="codeforces-rank"]');
+          const contestsEl = document.querySelector('[data-stat="codeforces-contests"]');
+
+          if (ratingEl && data.codeforces.rating) ratingEl.textContent = data.codeforces.rating;
+          if (rankEl && data.codeforces.rank) rankEl.textContent = data.codeforces.rank;
+          if (contestsEl && data.codeforces.contests !== undefined) contestsEl.textContent = data.codeforces.contests;
+        }
+      })
+      .catch(() => {
+        // Silently preserve pre-rendered fallback numbers on static hosting
+      });
+  }
+
 })();
