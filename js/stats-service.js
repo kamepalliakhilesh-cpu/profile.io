@@ -13,15 +13,15 @@ export async function getCodingStats() {
   const results = {
     timestamp: now,
     leetcode: {
-      solved: 184,
+      solved: 185,
       rating: 1403,
       contests: 2,
-      easy: 158,
+      easy: 159,
       medium: 26,
       hard: 0
     },
     codechef: {
-      solved: 481,
+      solved: 483,
       rating: 1205,
       contests: 14,
       stars: '1★',
@@ -34,7 +34,8 @@ export async function getCodingStats() {
     },
     github: {
       repos: 7,
-      followers: 1
+      followers: 2,
+      commits: '240+'
     },
     gfg: {
       solved: '35+',

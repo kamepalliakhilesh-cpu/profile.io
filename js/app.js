@@ -34,6 +34,9 @@
     initCertModal();
     initCertsReel();
     initProjectsReel();
+    initSlidingTabs();
+    initProjectSpotlights();
+    initEmailCopy();
     initLiveCodingStats();
   }
 
@@ -1126,61 +1129,190 @@
   }
 
   /* ============================================================
-     LIVE CODING STATS (Hydrate dynamic stats from server/cache)
+     SLIDING TAB INDICATORS (Skills & Certifications)
+     ============================================================ */
+  function initSlidingTabs() {
+    const tabContainers = document.querySelectorAll('.skills__tabs, .cert-tabs');
+    if (!tabContainers.length) return;
+
+    tabContainers.forEach(container => {
+      let pill = container.querySelector('.tab-slider-pill');
+      if (!pill) {
+        pill = document.createElement('div');
+        pill.className = 'tab-slider-pill';
+        container.prepend(pill);
+      }
+
+      function updatePill(activeBtn) {
+        if (!activeBtn) return;
+        pill.style.width = `${activeBtn.offsetWidth}px`;
+        pill.style.transform = `translateX(${activeBtn.offsetLeft}px)`;
+        pill.style.opacity = '1';
+      }
+
+      const activeTab = container.querySelector('.active') || container.querySelector('button');
+      if (activeTab) {
+        // Wait for styles/fonts to layout
+        setTimeout(() => updatePill(activeTab), 50);
+      }
+
+      container.addEventListener('click', (e) => {
+        const btn = e.target.closest('button');
+        if (btn && container.contains(btn)) {
+          updatePill(btn);
+        }
+      });
+
+      window.addEventListener('resize', () => {
+        const currentActive = container.querySelector('.active');
+        if (currentActive) updatePill(currentActive);
+      }, { passive: true });
+    });
+  }
+
+  /* ============================================================
+     PROJECT CARD SPOTLIGHT CURSOR TRACKING
+     ============================================================ */
+  function initProjectSpotlights() {
+    const cards = document.querySelectorAll('.project-reel-card');
+    if (!cards.length) return;
+
+    cards.forEach(card => {
+      card.addEventListener('mousemove', (e) => {
+        const rect = card.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        card.style.setProperty('--mouse-x', `${x}px`);
+        card.style.setProperty('--mouse-y', `${y}px`);
+      }, { passive: true });
+    });
+  }
+
+  /* ============================================================
+     ONE-CLICK EMAIL COPY WITH TOAST FEEDBACK
+     ============================================================ */
+  function initEmailCopy() {
+    const copyBtn = document.getElementById('email-copy-btn');
+    const tooltip = document.getElementById('copy-tooltip');
+    if (!copyBtn) return;
+
+    const email = 'kamepalliakhilesh@gmail.com';
+
+    copyBtn.addEventListener('click', async (e) => {
+      e.preventDefault();
+      try {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          await navigator.clipboard.writeText(email);
+        } else {
+          const textArea = document.createElement('textarea');
+          textArea.value = email;
+          document.body.appendChild(textArea);
+          textArea.select();
+          document.execCommand('copy');
+          document.body.removeChild(textArea);
+        }
+
+        copyBtn.classList.add('copied');
+        if (tooltip) tooltip.textContent = 'Copied to clipboard! ✓';
+
+        setTimeout(() => {
+          copyBtn.classList.remove('copied');
+          if (tooltip) tooltip.textContent = 'Copy';
+        }, 2400);
+      } catch (err) {
+        if (tooltip) tooltip.textContent = 'Failed to copy';
+        setTimeout(() => { if (tooltip) tooltip.textContent = 'Copy'; }, 2000);
+      }
+    });
+  }
+
+  /* ============================================================
+     LIVE CODING STATS (Multi-Tier Dynamic Hydration)
      ============================================================ */
   function initLiveCodingStats() {
     if (!window.location.protocol.startsWith('http')) return;
 
+    function applyStats(data) {
+      if (!data) return;
+
+      // GitHub
+      if (data.github) {
+        const reposEl = document.querySelector('[data-stat="github-repos"]');
+        const commitsEl = document.querySelector('[data-stat="github-commits"]');
+        if (reposEl && data.github.repos) reposEl.textContent = data.github.repos;
+        if (commitsEl && data.github.commits) commitsEl.textContent = data.github.commits;
+      }
+
+      // LeetCode
+      if (data.leetcode) {
+        const solvedEl = document.querySelector('[data-stat="leetcode-solved"]');
+        const ratingEl = document.querySelector('[data-stat="leetcode-rating"]');
+        const contestsEl = document.querySelector('[data-stat="leetcode-contests"]');
+
+        if (solvedEl && data.leetcode.solved) solvedEl.textContent = data.leetcode.solved;
+        if (ratingEl && data.leetcode.rating) ratingEl.textContent = Math.round(data.leetcode.rating);
+        if (contestsEl && data.leetcode.contests !== undefined) contestsEl.textContent = data.leetcode.contests;
+      }
+
+      // CodeChef
+      if (data.codechef) {
+        const solvedEl = document.querySelector('[data-stat="codechef-solved"]');
+        const ratingEl = document.querySelector('[data-stat="codechef-rating"]');
+        const contestsEl = document.querySelector('[data-stat="codechef-contests"]');
+
+        if (solvedEl && data.codechef.solved) solvedEl.textContent = data.codechef.solved;
+        if (ratingEl && data.codechef.rating) ratingEl.textContent = `${data.codechef.rating} (${data.codechef.division || 'Div 4'})`;
+        if (contestsEl && data.codechef.contests) contestsEl.textContent = data.codechef.contests;
+      }
+
+      // Codeforces
+      if (data.codeforces) {
+        const ratingEl = document.querySelector('[data-stat="codeforces-rating"]');
+        const rankEl = document.querySelector('[data-stat="codeforces-rank"]');
+        const contestsEl = document.querySelector('[data-stat="codeforces-contests"]');
+
+        if (ratingEl && data.codeforces.rating) ratingEl.textContent = data.codeforces.rating;
+        if (rankEl && data.codeforces.rank) rankEl.textContent = data.codeforces.rank;
+        if (contestsEl && data.codeforces.contests !== undefined) contestsEl.textContent = data.codeforces.contests;
+      }
+    }
+
+    // 1. Try local Node.js API endpoint first
     fetch('/api/coding-stats')
       .then(res => {
-        if (!res.ok) throw new Error('Stats API unavailable');
+        if (!res.ok) throw new Error('API route not available');
         return res.json();
       })
-      .then(data => {
-        if (!data) return;
+      .then(data => applyStats(data))
+      .catch(() => {
+        // 2. Fallback to static stats.json (for GitHub Pages static hosting)
+        fetch('stats.json')
+          .then(res => res.ok ? res.json() : null)
+          .then(data => applyStats(data))
+          .catch(() => {});
+      });
 
-        // GitHub
-        if (data.github) {
+    // 3. Client-side real-time GitHub fetch (CORS supported by GitHub API)
+    fetch('https://api.github.com/users/kamepalliakhilesh-cpu')
+      .then(res => res.ok ? res.json() : null)
+      .then(gh => {
+        if (gh && gh.public_repos !== undefined) {
           const reposEl = document.querySelector('[data-stat="github-repos"]');
-          if (reposEl && data.github.repos) reposEl.textContent = data.github.repos;
-        }
-
-        // LeetCode
-        if (data.leetcode) {
-          const solvedEl = document.querySelector('[data-stat="leetcode-solved"]');
-          const ratingEl = document.querySelector('[data-stat="leetcode-rating"]');
-          const contestsEl = document.querySelector('[data-stat="leetcode-contests"]');
-
-          if (solvedEl && data.leetcode.solved) solvedEl.textContent = data.leetcode.solved;
-          if (ratingEl && data.leetcode.rating) ratingEl.textContent = data.leetcode.rating;
-          if (contestsEl && data.leetcode.contests !== undefined) contestsEl.textContent = data.leetcode.contests;
-        }
-
-        // CodeChef
-        if (data.codechef) {
-          const solvedEl = document.querySelector('[data-stat="codechef-solved"]');
-          const ratingEl = document.querySelector('[data-stat="codechef-rating"]');
-          const contestsEl = document.querySelector('[data-stat="codechef-contests"]');
-
-          if (solvedEl && data.codechef.solved) solvedEl.textContent = data.codechef.solved;
-          if (ratingEl && data.codechef.rating) ratingEl.textContent = `${data.codechef.rating} (${data.codechef.division || 'Div 4'})`;
-          if (contestsEl && data.codechef.contests) contestsEl.textContent = data.codechef.contests;
-        }
-
-        // Codeforces
-        if (data.codeforces) {
-          const ratingEl = document.querySelector('[data-stat="codeforces-rating"]');
-          const rankEl = document.querySelector('[data-stat="codeforces-rank"]');
-          const contestsEl = document.querySelector('[data-stat="codeforces-contests"]');
-
-          if (ratingEl && data.codeforces.rating) ratingEl.textContent = data.codeforces.rating;
-          if (rankEl && data.codeforces.rank) rankEl.textContent = data.codeforces.rank;
-          if (contestsEl && data.codeforces.contests !== undefined) contestsEl.textContent = data.codeforces.contests;
+          if (reposEl) reposEl.textContent = gh.public_repos;
         }
       })
-      .catch(() => {
-        // Silently preserve pre-rendered fallback numbers on static hosting
-      });
+      .catch(() => {});
+
+    // 4. Client-side real-time LeetCode fetch (Public CORS Proxy)
+    fetch('https://leetcode-api-faisalshohag.vercel.app/k_v_akhilesh')
+      .then(res => res.ok ? res.json() : null)
+      .then(lc => {
+        if (lc && lc.totalSolved !== undefined) {
+          const solvedEl = document.querySelector('[data-stat="leetcode-solved"]');
+          if (solvedEl) solvedEl.textContent = lc.totalSolved;
+        }
+      })
+      .catch(() => {});
   }
 
 })();

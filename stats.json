@@ -1,0 +1,35 @@
+{
+  "timestamp": 1792598400000,
+  "leetcode": {
+    "solved": 185,
+    "rating": 1403,
+    "contests": 2,
+    "easy": 159,
+    "medium": 26,
+    "hard": 0
+  },
+  "codechef": {
+    "solved": 483,
+    "rating": 1205,
+    "contests": 14,
+    "stars": "1★",
+    "division": "Div 4"
+  },
+  "codeforces": {
+    "rating": 0,
+    "contests": 0,
+    "rank": "Unrated"
+  },
+  "github": {
+    "repos": 7,
+    "followers": 2,
+    "commits": "240+"
+  },
+  "gfg": {
+    "solved": "35+",
+    "score": "120+"
+  },
+  "credly": {
+    "badges": 3
+  }
+}

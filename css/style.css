@@ -2288,3 +2288,230 @@ button,
   mix-blend-mode: soft-light;
 }
 
+/* ============================================================
+   ENHANCEMENTS: LOADER SUBTEXT, LIVE BEACON, TAB PILL, COPY BTN
+   ============================================================ */
+
+/* Loader Subtext */
+.loader__subtext {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--text-tertiary);
+  margin-top: 8px;
+  letter-spacing: 0.5px;
+  animation: pulseOpacity 2s infinite ease-in-out;
+}
+
+@keyframes pulseOpacity {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; }
+}
+
+/* Navbar Live Status Pill */
+.nav-status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  border-radius: var(--radius-full);
+  background: rgba(16, 185, 129, 0.08);
+  border: 1px solid rgba(16, 185, 129, 0.25);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  margin-left: 12px;
+  transition: all var(--transition-fast);
+}
+
+.nav-status-pill:hover {
+  background: rgba(16, 185, 129, 0.15);
+  border-color: rgba(16, 185, 129, 0.45);
+  transform: translateY(-1px);
+}
+
+.status-beacon {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 10px;
+  height: 10px;
+}
+
+.status-beacon__dot {
+  width: 7px;
+  height: 7px;
+  background-color: #10b981;
+  border-radius: 50%;
+  box-shadow: 0 0 8px #10b981;
+}
+
+.status-beacon__ping {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background-color: rgba(16, 185, 129, 0.6);
+  animation: beaconPing 2s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
+@keyframes beaconPing {
+  0% { transform: scale(0.9); opacity: 0.8; }
+  75%, 100% { transform: scale(2.4); opacity: 0; }
+}
+
+.status-text {
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 500;
+  color: #10b981;
+  letter-spacing: 0.2px;
+  white-space: nowrap;
+}
+
+@media (max-width: 991px) {
+  .nav-status-pill .status-text {
+    display: none;
+  }
+  .nav-status-pill {
+    padding: 6px 8px;
+    margin-left: 8px;
+  }
+}
+
+/* Sliding Tab Indicator (Skills & Certs) */
+.skills__tabs, .cert-tabs {
+  position: relative;
+  display: inline-flex;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border-color);
+  padding: 4px;
+  border-radius: var(--radius-full);
+}
+
+[data-theme="light"] .skills__tabs,
+[data-theme="light"] .cert-tabs {
+  background: rgba(0, 0, 0, 0.03);
+}
+
+.tab-slider-pill {
+  position: absolute;
+  top: 4px;
+  bottom: 4px;
+  left: 0;
+  border-radius: var(--radius-full);
+  background: var(--primary-gradient);
+  box-shadow: 0 4px 14px rgba(99, 102, 241, 0.4);
+  pointer-events: none;
+  z-index: 1;
+  transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1), width 0.35s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.2s ease;
+}
+
+.skills__tab, .cert-tab {
+  position: relative;
+  z-index: 2;
+  border: none !important;
+  background: transparent !important;
+  color: var(--text-secondary);
+  transition: color 0.25s ease;
+}
+
+.skills__tab.active, .cert-tab.active {
+  color: #ffffff !important;
+  font-weight: 600;
+}
+
+/* Email One-Click Copy Button */
+.email-copy-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  margin-left: 12px;
+}
+
+.email-copy-btn:hover {
+  background: rgba(99, 102, 241, 0.15);
+  border-color: rgba(99, 102, 241, 0.4);
+  color: var(--accent-cyan);
+  transform: translateY(-2px);
+}
+
+.email-copy-btn:active {
+  transform: translateY(0) scale(0.96);
+}
+
+.copy-tooltip {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%) translateY(4px);
+  background: rgba(15, 23, 42, 0.95);
+  border: 1px solid var(--border-color);
+  color: #fff;
+  padding: 4px 10px;
+  border-radius: var(--radius-sm);
+  font-size: 11px;
+  font-family: var(--font-body);
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  z-index: 20;
+}
+
+.email-copy-btn:hover .copy-tooltip,
+.email-copy-btn.copied .copy-tooltip {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+.email-copy-btn.copied {
+  background: rgba(16, 185, 129, 0.2);
+  border-color: #10b981;
+  color: #10b981;
+}
+
+.email-copy-btn.copied .copy-icon {
+  display: none !important;
+}
+
+.email-copy-btn.copied .check-icon {
+  display: inline-block !important;
+}
+
+/* Spotlight Cursor Follow on Project Cards */
+.project-reel-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.project-reel-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(
+    circle 280px at var(--mouse-x, 50%) var(--mouse-y, 50%),
+    rgba(129, 140, 248, 0.14),
+    transparent 80%
+  );
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  z-index: 1;
+}
+
+.project-reel-card:hover::before {
+  opacity: 1;
+}
+
+
