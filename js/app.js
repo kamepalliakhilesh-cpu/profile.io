@@ -437,27 +437,49 @@
   }
 
   /* ============================================================
-     3D TILT CARDS
+     ADVANCED 3D TILT CARDS & HOLOGRAPHIC SPECULAR GLARE
      ============================================================ */
   function initTiltCards() {
-    const cards = document.querySelectorAll('.tilt-card');
-    if (!cards.length || window.innerWidth < 1024) return;
+    const cardSelectors = '.tilt-card, .project-reel-card, .badge-card, .cert-card, .profile-card, .stat-card, .about__image-wrapper';
+    const cards = document.querySelectorAll(cardSelectors);
+    if (!cards.length || window.innerWidth < 768) return;
 
     cards.forEach((card) => {
+      // Inject holographic glare element if not present
+      if (!card.querySelector('.card-glare') && !card.classList.contains('about__image-wrapper')) {
+        const glare = document.createElement('div');
+        glare.className = 'card-glare';
+        card.appendChild(glare);
+      }
+
+      card.style.willChange = 'transform';
+
       card.addEventListener('mousemove', (e) => {
         const rect = card.getBoundingClientRect();
         const x = e.clientX - rect.left;
         const y = e.clientY - rect.top;
         const centerX = rect.width / 2;
         const centerY = rect.height / 2;
-        const rotateX = ((y - centerY) / centerY) * -8;
-        const rotateY = ((x - centerX) / centerX) * 8;
 
-        card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.02, 1.02, 1.02)`;
+        const maxTilt = card.classList.contains('about__image-wrapper') ? 14 : 11;
+        const rotateX = ((centerY - y) / centerY) * maxTilt;
+        const rotateY = ((x - centerX) / centerX) * maxTilt;
+
+        const percentX = (x / rect.width) * 100;
+        const percentY = (y / rect.height) * 100;
+        const distFromCenter = Math.hypot((x - centerX) / centerX, (y - centerY) / centerY);
+        const glareOpacity = Math.min(0.65, distFromCenter * 0.55);
+
+        card.style.setProperty('--glare-x', `${percentX.toFixed(1)}%`);
+        card.style.setProperty('--glare-y', `${percentY.toFixed(1)}%`);
+        card.style.setProperty('--glare-opacity', glareOpacity.toFixed(2));
+
+        card.style.transform = `perspective(1000px) rotateX(${rotateX.toFixed(2)}deg) rotateY(${rotateY.toFixed(2)}deg) translateZ(8px) scale3d(1.02, 1.02, 1.02)`;
       });
 
       card.addEventListener('mouseleave', () => {
-        card.style.transform = 'perspective(1000px) rotateX(0) rotateY(0) scale3d(1, 1, 1)';
+        card.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) translateZ(0px) scale3d(1, 1, 1)';
+        card.style.setProperty('--glare-opacity', '0');
       });
     });
   }
@@ -538,7 +560,7 @@
     animateCursor();
 
     // Hover effect on interactive elements
-    const interactiveSelectors = 'a, button, input, textarea, .tilt-card, .skill-card, .profile-card';
+    const interactiveSelectors = 'a, button, input, textarea, .tilt-card, .skill-card, .profile-card, .project-reel-card, .badge-card, .cert-card, .stat-card, .about__image-wrapper';
     document.querySelectorAll(interactiveSelectors).forEach((el) => {
       el.addEventListener('mouseenter', () => {
         dot.classList.add('hovering');
@@ -552,7 +574,7 @@
   }
 
   /* ============================================================
-     MAGNETIC HOVER EFFECT (Applied to all buttons, cards & tabs)
+     MAGNETIC HOVER EFFECT (Applied to all buttons, links & tabs)
      ============================================================ */
   function initMagnetic() {
     const selector = '.magnetic, .btn, button, .badges-nav-btn, .skills__tab, .cert-tab, .project-tab, .badge-link, .cert-preview-btn, .scroll-top, .theme-toggle, .contact__social';
@@ -560,14 +582,18 @@
     if (!elements.length || window.matchMedia('(hover: none)').matches) return;
 
     elements.forEach((el) => {
+      // Skip cards that use 3D tilt
+      if (el.matches('.profile-card, .tilt-card, .project-reel-card, .badge-card, .cert-card, .stat-card, .about__image-wrapper')) {
+        return;
+      }
+
       el.style.willChange = 'transform';
 
       el.addEventListener('mousemove', (e) => {
         const rect = el.getBoundingClientRect();
         const x = e.clientX - rect.left - rect.width / 2;
         const y = e.clientY - rect.top - rect.height / 2;
-        const isCard = el.classList.contains('profile-card') || el.classList.contains('tilt-card');
-        const strength = isCard ? 0.15 : 0.32;
+        const strength = 0.32;
 
         el.style.transition = 'transform 0.08s ease-out';
         el.style.transform = `translate(${x * strength}px, ${y * strength}px)`;

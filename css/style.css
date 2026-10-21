@@ -244,6 +244,10 @@ button {
   height: 100%;
   z-index: 0;
   pointer-events: none;
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
+  backface-visibility: hidden;
+  transform: translateZ(0);
 }
 
 /* ---- NAVBAR ---- */
@@ -2196,3 +2200,91 @@ button,
 .contact__social {
   cursor: pointer;
 }
+
+/* ============================================================
+   ADVANCED 3D PERSPECTIVE & HOLOGRAPHIC SPECULAR GLARE
+   ============================================================ */
+.tilt-card,
+.project-reel-card,
+.badge-card,
+.cert-card,
+.profile-card,
+.stat-card,
+.about__image-wrapper {
+  position: relative;
+  transform-style: preserve-3d;
+  perspective: 1000px;
+  will-change: transform;
+  transition: transform 0.15s ease-out, box-shadow 0.35s ease, border-color 0.35s ease;
+}
+
+/* Multi-layer 3D Depth on inner elements */
+.project-reel-card__visual,
+.badge-card__visual,
+.project-emblem,
+.badge-pedestal,
+.profile-card__icon,
+.stat__number,
+.about__image {
+  transform: translateZ(35px);
+  transform-style: preserve-3d;
+  transition: transform 0.25s ease-out;
+}
+
+.project-reel-card__title,
+.badge-card__title,
+.cert-card__title,
+.profile-card__name,
+.about__image-glow {
+  transform: translateZ(24px);
+  transform-style: preserve-3d;
+}
+
+.project-reel-card__focus,
+.project-reel-card__desc,
+.badge-card__desc,
+.cert-card__issuer,
+.stat__label {
+  transform: translateZ(16px);
+  transform-style: preserve-3d;
+}
+
+.project-reel-card__actions,
+.cert-card__actions,
+.profile-card__arrow,
+.badge-pill,
+.badge-date {
+  transform: translateZ(28px);
+  transform-style: preserve-3d;
+}
+
+.about__image-border {
+  transform: translateZ(12px);
+  transform-style: preserve-3d;
+}
+
+/* Dynamic Holographic Specular Glare */
+.card-glare {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 6;
+  background: radial-gradient(
+    circle 260px at var(--glare-x, 50%) var(--glare-y, 50%),
+    rgba(255, 255, 255, var(--glare-opacity, 0)),
+    transparent 75%
+  );
+  mix-blend-mode: overlay;
+  transition: opacity 0.25s ease;
+}
+
+[data-theme="light"] .card-glare {
+  background: radial-gradient(
+    circle 260px at var(--glare-x, 50%) var(--glare-y, 50%),
+    rgba(99, 102, 241, calc(var(--glare-opacity, 0) * 0.45)),
+    transparent 75%
+  );
+  mix-blend-mode: soft-light;
+}
+
