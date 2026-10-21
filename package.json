@@ -1,0 +1,19 @@
+{
+  "name": "akhilesh-portfolio",
+  "version": "1.0.0",
+  "description": "Portfolio of Kamepalli Venkata Akhilesh",
+  "type": "module",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "keywords": [
+    "portfolio",
+    "developer",
+    "threejs",
+    "fullstack"
+  ],
+  "author": "Kamepalli Venkata Akhilesh",
+  "license": "MIT"
+}
