@@ -41,7 +41,7 @@
   renderer.setClearColor(0x000000, 0);
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 1.15;
+  renderer.toneMappingExposure = 1.25;
 
   // ---- Mouse & Scroll Tracking ----
   const mouse = { x: 0, y: 0, targetX: 0, targetY: 0, speed: 0 };
@@ -74,23 +74,23 @@
   });
   themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
 
-  // ---- Dynamic Lighting ----
-  const ambientLight = new THREE.AmbientLight(isDark ? 0x24273a : 0xecf0f8, 0.8);
+  // ---- Dynamic Lighting (Unified Celestial Palette - No Harsh Side Pink/Blue Glare) ----
+  const ambientLight = new THREE.AmbientLight(isDark ? 0x1e2238 : 0xecf0f8, 0.85);
   scene.add(ambientLight);
 
-  // Primary interactive light that tracks cursor
-  const cursorPointLight = new THREE.PointLight(isDark ? 0x00f0ff : 0x4f46e5, 3.2, 45, 1.8);
+  // Primary interactive light that tracks cursor (Electric Cyan)
+  const cursorPointLight = new THREE.PointLight(isDark ? 0x00f0ff : 0x4f46e5, 2.8, 40, 1.8);
   cursorPointLight.position.set(0, 0, 10);
   scene.add(cursorPointLight);
 
-  // Orbiting secondary accent light (magenta/violet)
-  const accentLight = new THREE.PointLight(isDark ? 0xa855f7 : 0x06b6d4, 2.5, 55, 1.6);
-  accentLight.position.set(12, 10, 8);
+  // Subtle celestial sapphire rim light (balanced soft illumination)
+  const accentLight = new THREE.PointLight(isDark ? 0x3b82f6 : 0x06b6d4, 1.2, 38, 2.0);
+  accentLight.position.set(6, 6, 6);
   scene.add(accentLight);
 
-  // Soft directional rim light
-  const directionalLight = new THREE.DirectionalLight(isDark ? 0x818cf8 : 0x6366f1, 0.7);
-  directionalLight.position.set(-15, 20, 15);
+  // Soft directional celestial light
+  const directionalLight = new THREE.DirectionalLight(isDark ? 0x60a5fa : 0x6366f1, 0.45);
+  directionalLight.position.set(-8, 14, 12);
   scene.add(directionalLight);
 
   // ---- Raycasting for Mouse World Coordinates ----
@@ -100,20 +100,23 @@
   const projectionPlane = new THREE.Plane(new THREE.Vector3(0, 0, 1), 0);
 
   // ============================================================
-  // 1. HERO 3D GYROSCOPIC CORE ("Cosmic Core")
+  // 1. HERO 3D GYROSCOPIC CORE ("Cosmic Core" with PBR Glass Refraction)
   // ============================================================
   const heroCoreGroup = new THREE.Group();
   heroCoreGroup.position.set(0, 1.2, 0);
 
-  // Crystal nucleus
+  // Crystal nucleus: PBR Physical Glass with Transmission & Refraction
   const nucleusGeo = new THREE.IcosahedronGeometry(2.0, 0);
-  const nucleusMat = new THREE.MeshPhongMaterial({
-    color: isDark ? 0x00f0ff : 0x6366f1,
-    emissive: isDark ? 0x0b1e36 : 0x1e1b4b,
-    specular: 0xffffff,
-    shininess: 90,
+  const nucleusMat = new THREE.MeshPhysicalMaterial({
+    color: isDark ? 0x00f0ff : 0x4f46e5,
+    emissive: isDark ? 0x051b36 : 0x1e1b4b,
+    roughness: 0.08,
+    metalness: 0.1,
+    transmission: 0.72,
+    thickness: 2.4,
+    ior: 1.55,
     transparent: true,
-    opacity: isDark ? 0.42 : 0.28,
+    opacity: isDark ? 0.82 : 0.6,
     flatShading: true
   });
   const nucleusMesh = new THREE.Mesh(nucleusGeo, nucleusMat);
@@ -122,19 +125,19 @@
   // Outer wireframe cage
   const cageGeo = new THREE.IcosahedronGeometry(2.35, 0);
   const cageMat = new THREE.MeshBasicMaterial({
-    color: isDark ? 0x38bdf8 : 0x4f46e5,
+    color: isDark ? 0x38bdf8 : 0x6366f1,
     wireframe: true,
     transparent: true,
-    opacity: isDark ? 0.65 : 0.45
+    opacity: isDark ? 0.72 : 0.5
   });
   const cageMesh = new THREE.Mesh(cageGeo, cageMat);
   heroCoreGroup.add(cageMesh);
 
-  // 3 Concentric Gyroscopic Rings
+  // 3 Concentric Gyroscopic Rings (Unified Cyan / Sapphire / Indigo Palette)
   const ringMaterials = [
-    new THREE.MeshBasicMaterial({ color: isDark ? 0x00f0ff : 0x3b82f6, transparent: true, opacity: 0.55 }),
-    new THREE.MeshBasicMaterial({ color: isDark ? 0xa855f7 : 0x8b5cf6, transparent: true, opacity: 0.5 }),
-    new THREE.MeshBasicMaterial({ color: isDark ? 0xec4899 : 0x06b6d4, transparent: true, opacity: 0.45 })
+    new THREE.MeshBasicMaterial({ color: isDark ? 0x00f0ff : 0x3b82f6, transparent: true, opacity: 0.6 }),
+    new THREE.MeshBasicMaterial({ color: isDark ? 0x818cf8 : 0x6366f1, transparent: true, opacity: 0.55 }),
+    new THREE.MeshBasicMaterial({ color: isDark ? 0x38bdf8 : 0x0d9488, transparent: true, opacity: 0.5 })
   ];
 
   const ring1 = new THREE.Mesh(new THREE.TorusGeometry(3.2, 0.045, 20, 128), ringMaterials[0]);
@@ -149,90 +152,22 @@
   heroCoreGroup.add(ring2);
   heroCoreGroup.add(ring3);
 
-  // Orbiting energy node on ring 1
-  const nodeGeo = new THREE.SphereGeometry(0.16, 12, 12);
+  // Orbiting energy node on ring 1 (Cyan)
+  const nodeGeo = new THREE.SphereGeometry(0.18, 16, 16);
   const nodeMat = new THREE.MeshBasicMaterial({ color: isDark ? 0xffffff : 0x00f0ff });
   const orbitalNode = new THREE.Mesh(nodeGeo, nodeMat);
   heroCoreGroup.add(orbitalNode);
 
+  // Orbiting energy node on ring 2 (Sapphire Blue)
+  const nodeGeo2 = new THREE.SphereGeometry(0.14, 16, 16);
+  const nodeMat2 = new THREE.MeshBasicMaterial({ color: isDark ? 0x38bdf8 : 0x6366f1 });
+  const orbitalNode2 = new THREE.Mesh(nodeGeo2, nodeMat2);
+  heroCoreGroup.add(orbitalNode2);
+
   scene.add(heroCoreGroup);
 
   // ============================================================
-  // 2. DUAL-LAYER FLOATING 3D SHAPES (Core + Wireframe Cage)
-  // ============================================================
-  const floatingObjects = [];
-
-  const shapeGeometries = [
-    new THREE.TorusKnotGeometry(1.1, 0.35, 80, 16),
-    new THREE.OctahedronGeometry(1.5, 0),
-    new THREE.TorusGeometry(1.4, 0.45, 16, 36),
-    new THREE.DodecahedronGeometry(1.4, 0),
-    new THREE.IcosahedronGeometry(1.5, 1),
-    new THREE.TetrahedronGeometry(1.6, 0)
-  ];
-
-  const shapeHues = [0.55, 0.72, 0.85, 0.48, 0.65, 0.78]; // cyan, purple, magenta, teal, blue, violet
-
-  const shapePositions = [
-    { x: -14, y: 7, z: -5 },
-    { x: 15, y: -3, z: -7 },
-    { x: -10, y: -9, z: -4 },
-    { x: 12, y: 9, z: -9 },
-    { x: -16, y: -2, z: -8 },
-    { x: 13, y: 4, z: -5 }
-  ];
-
-  shapeGeometries.forEach((geo, i) => {
-    const group = new THREE.Group();
-    const pos = shapePositions[i];
-    group.position.set(pos.x, pos.y, pos.z);
-
-    const hue = shapeHues[i];
-
-    // Solid inner core
-    const solidMat = new THREE.MeshPhongMaterial({
-      color: new THREE.Color().setHSL(hue, 0.8, isDark ? 0.55 : 0.45),
-      emissive: new THREE.Color().setHSL(hue, 0.9, isDark ? 0.12 : 0.05),
-      specular: 0xffffff,
-      shininess: 80,
-      transparent: true,
-      opacity: isDark ? 0.35 : 0.22,
-      flatShading: true
-    });
-    const coreMesh = new THREE.Mesh(geo, solidMat);
-    group.add(coreMesh);
-
-    // Outer wireframe shell
-    const wireMat = new THREE.MeshBasicMaterial({
-      color: new THREE.Color().setHSL(hue, 0.9, isDark ? 0.75 : 0.55),
-      wireframe: true,
-      transparent: true,
-      opacity: isDark ? 0.5 : 0.3
-    });
-    const wireMesh = new THREE.Mesh(geo, wireMat);
-    wireMesh.scale.setScalar(1.12);
-    group.add(wireMesh);
-
-    group.userData = {
-      basePos: { ...pos },
-      rotSpeed: {
-        x: (Math.random() - 0.5) * 0.006,
-        y: (Math.random() - 0.5) * 0.008,
-        z: (Math.random() - 0.5) * 0.004
-      },
-      floatSpeed: 0.4 + Math.random() * 0.5,
-      floatAmp: 0.6 + Math.random() * 0.8,
-      hue: hue,
-      coreMat: solidMat,
-      wireMat: wireMat
-    };
-
-    scene.add(group);
-    floatingObjects.push(group);
-  });
-
-  // ============================================================
-  // 3. DYNAMIC 3D PARTICLE WAVE SEA WITH PHYSICS
+  // 2. DYNAMIC 3D PARTICLE WAVE SEA WITH PHYSICS
   // ============================================================
   const particleGeo = new THREE.BufferGeometry();
   const particlePositions = new Float32Array(PARTICLE_COUNT * 3);
@@ -303,6 +238,30 @@
   scene.add(particles);
 
   // ============================================================
+  // 3B. VOLUMETRIC DEEP-SPACE STARFIELD (Multi-Layer Parallax)
+  // ============================================================
+  const DEEP_STARS_COUNT = isMobile ? 350 : 1000;
+  const deepStarGeo = new THREE.BufferGeometry();
+  const deepStarPositions = new Float32Array(DEEP_STARS_COUNT * 3);
+  for (let i = 0; i < DEEP_STARS_COUNT; i++) {
+    deepStarPositions[i * 3] = (Math.random() - 0.5) * 160;
+    deepStarPositions[i * 3 + 1] = (Math.random() - 0.5) * 130;
+    deepStarPositions[i * 3 + 2] = -40 - Math.random() * 80;
+  }
+  deepStarGeo.setAttribute('position', new THREE.BufferAttribute(deepStarPositions, 3));
+  const deepStarMat = new THREE.PointsMaterial({
+    color: isDark ? 0xa5b4fc : 0x6366f1,
+    size: 0.32,
+    map: particleTexture,
+    transparent: true,
+    opacity: isDark ? 0.75 : 0.5,
+    blending: THREE.AdditiveBlending,
+    depthWrite: false
+  });
+  const deepStars = new THREE.Points(deepStarGeo, deepStarMat);
+  scene.add(deepStars);
+
+  // ============================================================
   // 4. CONSTELLATION NEURAL WEB
   // ============================================================
   const lineGeo = new THREE.BufferGeometry();
@@ -326,34 +285,27 @@
   // THEME COLOR REFRESH
   // ============================================================
   function updateThemeColors() {
-    ambientLight.color.set(isDark ? 0x24273a : 0xecf0f8);
+    ambientLight.color.set(isDark ? 0x1e2238 : 0xecf0f8);
     cursorPointLight.color.set(isDark ? 0x00f0ff : 0x4f46e5);
-    accentLight.color.set(isDark ? 0xa855f7 : 0x06b6d4);
-    directionalLight.color.set(isDark ? 0x818cf8 : 0x6366f1);
+    accentLight.color.set(isDark ? 0x3b82f6 : 0x06b6d4);
+    directionalLight.color.set(isDark ? 0x60a5fa : 0x6366f1);
 
-    nucleusMat.color.set(isDark ? 0x00f0ff : 0x6366f1);
-    nucleusMat.emissive.set(isDark ? 0x0b1e36 : 0x1e1b4b);
-    nucleusMat.opacity = isDark ? 0.42 : 0.28;
+    nucleusMat.color.set(isDark ? 0x00f0ff : 0x4f46e5);
+    nucleusMat.emissive.set(isDark ? 0x051b36 : 0x1e1b4b);
+    nucleusMat.opacity = isDark ? 0.82 : 0.6;
 
-    cageMat.color.set(isDark ? 0x38bdf8 : 0x4f46e5);
-    cageMat.opacity = isDark ? 0.65 : 0.45;
+    cageMat.color.set(isDark ? 0x38bdf8 : 0x6366f1);
+    cageMat.opacity = isDark ? 0.72 : 0.5;
 
     ringMaterials[0].color.set(isDark ? 0x00f0ff : 0x3b82f6);
-    ringMaterials[1].color.set(isDark ? 0xa855f7 : 0x8b5cf6);
-    ringMaterials[2].color.set(isDark ? 0xec4899 : 0x06b6d4);
+    ringMaterials[1].color.set(isDark ? 0x818cf8 : 0x6366f1);
+    ringMaterials[2].color.set(isDark ? 0x38bdf8 : 0x0d9488);
 
     particleMat.color.set(isDark ? 0xffffff : 0x4f46e5);
-    particleMat.opacity = isDark ? 0.85 : 0.65;
+    particleMat.opacity = isDark ? 0.88 : 0.68;
 
-    floatingObjects.forEach((obj) => {
-      const d = obj.userData;
-      d.coreMat.color.setHSL(d.hue, 0.8, isDark ? 0.55 : 0.45);
-      d.coreMat.emissive.setHSL(d.hue, 0.9, isDark ? 0.12 : 0.05);
-      d.coreMat.opacity = isDark ? 0.35 : 0.22;
-
-      d.wireMat.color.setHSL(d.hue, 0.9, isDark ? 0.75 : 0.55);
-      d.wireMat.opacity = isDark ? 0.5 : 0.3;
-    });
+    deepStarMat.color.set(isDark ? 0xa5b4fc : 0x6366f1);
+    deepStarMat.opacity = isDark ? 0.75 : 0.5;
   }
 
   // ============================================================
@@ -460,12 +412,20 @@
     ring2.rotation.x = -time * 0.25;
     ring3.rotation.y = time * 0.2;
 
-    // Satellite node on ring 1
+    // Satellite node on ring 1 (Cyan)
     const nodeAngle = time * 1.5;
     orbitalNode.position.set(
       Math.cos(nodeAngle) * 3.2,
       Math.sin(nodeAngle) * 3.2 * Math.cos(Math.PI * 0.3),
       Math.sin(nodeAngle) * 3.2 * Math.sin(Math.PI * 0.3)
+    );
+
+    // Satellite node on ring 2 (Counter-orbiting Magenta)
+    const nodeAngle2 = -time * 1.2;
+    orbitalNode2.position.set(
+      Math.cos(nodeAngle2) * 3.9 * Math.cos(Math.PI * 0.45),
+      Math.sin(nodeAngle2) * 3.9,
+      Math.cos(nodeAngle2) * 3.9 * Math.sin(Math.PI * 0.45)
     );
 
     // Hero Core response to scroll (fades and moves back as user scrolls past hero)
@@ -474,21 +434,6 @@
     const heroScale = Math.max(0.1, 1 - scrollProgress * 1.6);
     heroCoreGroup.scale.setScalar(heroScale);
     heroCoreGroup.visible = heroScale > 0.08;
-
-    // ---- Animate Floating Objects ----
-    floatingObjects.forEach((obj) => {
-      const d = obj.userData;
-      obj.rotation.x += d.rotSpeed.x;
-      obj.rotation.y += d.rotSpeed.y;
-      obj.rotation.z += d.rotSpeed.z;
-
-      // Vertical sine float
-      obj.position.y = d.basePos.y + Math.sin(time * d.floatSpeed) * d.floatAmp;
-
-      // Mouse Parallax depth
-      obj.position.x = d.basePos.x + mouse.x * 2.2;
-      obj.position.z = d.basePos.z + mouse.y * 1.4;
-    });
 
     // ---- Dynamic 3D Particle Wave + Subtle Gentle Cursor Repulsion Physics ----
     const pPos = particleGeo.attributes.position.array;
@@ -534,15 +479,45 @@
     }
     particleGeo.attributes.position.needsUpdate = true;
 
-    // Gently rotate particle galaxy
+    // Gently rotate particle galaxy & deep starfield
     particles.rotation.y = time * 0.012;
     particles.rotation.x = Math.sin(time * 0.01) * 0.05;
 
-    // Camera 3D flight on scroll
-    camera.position.y = -scrollProgress * 18;
-    camera.position.z = 28 - Math.sin(scrollProgress * Math.PI) * 4;
-    camera.rotation.z = Math.sin(scrollProgress * Math.PI) * 0.04;
-    camera.lookAt(0, camera.position.y, 0);
+    deepStars.rotation.y = time * 0.006 + mouse.x * 0.05;
+    deepStars.rotation.x = Math.sin(time * 0.005) * 0.03 - mouse.y * 0.04;
+
+    // ---- Feature 4: Choreographed 3D Camera Holographic Parallax & Dynamic Stage Tilt ----
+    const targetCamX = Math.sin(scrollProgress * Math.PI * 1.5) * 5.0 + mouse.x * 3.4;
+    const targetCamY = -scrollProgress * 26 + mouse.y * 2.5;
+    const targetCamZ = 28 - Math.sin(scrollProgress * Math.PI) * 7.0;
+
+    camera.position.x += (targetCamX - camera.position.x) * 0.065;
+    camera.position.y += (targetCamY - camera.position.y) * 0.065;
+    camera.position.z += (targetCamZ - camera.position.z) * 0.065;
+
+    camera.rotation.z = Math.sin(scrollProgress * Math.PI * 1.2) * 0.06 + mouse.x * 0.035;
+    camera.lookAt(mouse.x * 2.2, camera.position.y * 0.9, 0);
+
+    // Dynamic light color choreography across page sections (Unified Celestial Space - No Harsh Pink/Blue Glare)
+    if (isDark) {
+      if (scrollProgress < 0.25) {
+        // Hero: Electric Cyan & Deep Sapphire Blue (No Pink)
+        cursorPointLight.color.lerp(new THREE.Color(0x00f0ff), 0.05);
+        accentLight.color.lerp(new THREE.Color(0x3b82f6), 0.05);
+      } else if (scrollProgress < 0.55) {
+        // About & Skills: Emerald & Deep Teal
+        cursorPointLight.color.lerp(new THREE.Color(0x10b981), 0.05);
+        accentLight.color.lerp(new THREE.Color(0x06b6d4), 0.05);
+      } else if (scrollProgress < 0.8) {
+        // Projects & Badges: Amber & Soft Celestial Cyan
+        cursorPointLight.color.lerp(new THREE.Color(0xf59e0b), 0.05);
+        accentLight.color.lerp(new THREE.Color(0x0d9488), 0.05);
+      } else {
+        // Certs & Contact: Indigo & Cyan
+        cursorPointLight.color.lerp(new THREE.Color(0x6366f1), 0.05);
+        accentLight.color.lerp(new THREE.Color(0x38bdf8), 0.05);
+      }
+    }
 
     // Update constellation lines
     updateConstellation();

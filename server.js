@@ -28,6 +28,26 @@ const MIME_TYPES = {
 const server = http.createServer(async (req, res) => {
   let reqPath = decodeURI(req.url.split('?')[0]);
 
+  // API: Save Badge Image
+  if (req.method === 'POST' && reqPath === '/api/save-badge') {
+    let body = '';
+    req.on('data', chunk => { body += chunk; });
+    req.on('end', () => {
+      try {
+        const data = JSON.parse(body);
+        const base64Data = data.image.replace(/^data:image\/png;base64,/, '');
+        const targetPath = path.join(__dirname, 'assets', 'badges', data.filename || 'codechef-100-days-streak.png');
+        fs.writeFileSync(targetPath, base64Data, 'base64');
+        res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8', 'Access-Control-Allow-Origin': '*' });
+        res.end(JSON.stringify({ success: true, path: targetPath }));
+      } catch (err) {
+        res.writeHead(500, { 'Content-Type': 'application/json; charset=utf-8', 'Access-Control-Allow-Origin': '*' });
+        res.end(JSON.stringify({ error: err.message }));
+      }
+    });
+    return;
+  }
+
   // API: Live Coding Profile Stats
   if (reqPath === '/api/coding-stats') {
     try {
