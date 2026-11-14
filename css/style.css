@@ -120,6 +120,12 @@ button {
   color: inherit;
 }
 
+/* Keep keyboard navigation visible across the glass UI. */
+:where(a, button, [role="button"], input, textarea, select):focus-visible {
+  outline: 2px solid var(--clr-tertiary);
+  outline-offset: 3px;
+}
+
 ::selection {
   background: var(--clr-primary);
   color: #fff;
@@ -2886,8 +2892,8 @@ button,
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 38px;
-  height: 38px;
+  width: 44px;
+  height: 44px;
   border-radius: var(--radius-full);
   background: var(--glass-bg);
   border: 1px solid var(--glass-border);
@@ -2938,6 +2944,7 @@ button,
   display: inline-flex;
   align-items: center;
   gap: 8px;
+  min-height: 44px;
   padding: 6px 12px;
   background: var(--glass-bg);
   border: 1px solid var(--glass-border);
@@ -3914,6 +3921,17 @@ button,
     left: 20px;
     padding: 8px 12px;
     font-size: 11px;
+  }
+
+  /* Reserve a clear lane above the fixed terminal launcher. */
+  .hero__telemetry-dock {
+    bottom: 76px;
+  }
+
+  .stage-mode-btn,
+  .stage-pulse-btn {
+    min-height: 40px;
+    padding: 7px 11px;
   }
 
   .lc-donut-showcase {
