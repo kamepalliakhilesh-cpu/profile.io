@@ -5,8 +5,19 @@
 (function () {
   'use strict';
 
-  // ---- Wait for DOM ----
-  document.addEventListener('DOMContentLoaded', init);
+  // ---- Wait for DOM (with immediate execution fallback for Canvas / dynamic mount) ----
+  let hasInitialized = false;
+  function safeInit() {
+    if (hasInitialized) return;
+    hasInitialized = true;
+    init();
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', safeInit);
+  } else {
+    safeInit();
+  }
+  window.addEventListener('load', safeInit);
 
   function init() {
     initLoader();
@@ -16,7 +27,6 @@
     initNavbar();
     initMobileMenu();
     initHeroAnimations();
-    initTypewriter();
     initScrollAnimations();
     initStatCounters();
     initSkillBars();
@@ -52,22 +62,29 @@
     const fill = document.getElementById('loader-fill');
     if (!loader || !fill) return;
 
-    let progress = 0;
+    let done = false;
+    function finishLoader() {
+      if (done) return;
+      done = true;
+      fill.style.width = '100%';
+      loader.classList.add('hidden');
+      document.dispatchEvent(new CustomEvent('loaderDone'));
+    }
+
+    let progress = 25;
+    fill.style.width = '25%';
     const interval = setInterval(() => {
-      progress += Math.random() * 15 + 5;
+      progress += 28;
       if (progress >= 100) {
-        progress = 100;
         clearInterval(interval);
-        fill.style.width = '100%';
-        setTimeout(() => {
-          loader.classList.add('hidden');
-          // Trigger hero animations after loader
-          document.dispatchEvent(new CustomEvent('loaderDone'));
-        }, 400);
+        setTimeout(finishLoader, 180);
       } else {
         fill.style.width = progress + '%';
       }
-    }, 150);
+    }, 80);
+
+    // Hard failsafe so preview always opens promptly
+    setTimeout(finishLoader, 900);
   }
 
   /* ============================================================
@@ -238,85 +255,34 @@
      ============================================================ */
   function initHeroAnimations() {
     document.addEventListener('loaderDone', () => {
-      // Reveal hero name lines
       const lines = document.querySelectorAll('.hero__name-line');
       lines.forEach((line, i) => {
-        setTimeout(() => line.classList.add('revealed'), 200 + i * 200);
+        setTimeout(() => line.classList.add('revealed'), 150 + i * 160);
       });
 
-      // Reveal other hero elements
       if (typeof gsap !== 'undefined') {
-        gsap.to('.hero__greeting', {
-          opacity: 1, y: 0, duration: 0.8, delay: 0.5, ease: 'power3.out'
-        });
-        gsap.to('.hero__subtitle', {
-          opacity: 1, y: 0, duration: 0.8, delay: 0.9, ease: 'power3.out'
-        });
-        gsap.to('.hero__cta', {
-          opacity: 1, y: 0, duration: 0.8, delay: 1.1, ease: 'power3.out'
-        });
-        gsap.to('.hero__scroll', {
-          opacity: 1, y: 0, duration: 0.8, delay: 1.4, ease: 'power3.out'
-        });
+        gsap.fromTo('.hero__eyebrow',
+          { opacity: 0, y: 18 },
+          { opacity: 1, y: 0, duration: 0.75, delay: 0.15, ease: 'power3.out' }
+        );
+        gsap.fromTo('.hero__headline-block',
+          { opacity: 0, y: 24 },
+          { opacity: 1, y: 0, duration: 0.85, delay: 0.3, ease: 'power3.out' }
+        );
+        gsap.fromTo('.hero__actions',
+          { opacity: 0, y: 20 },
+          { opacity: 1, y: 0, duration: 0.8, delay: 0.5, ease: 'power3.out' }
+        );
+        gsap.fromTo('.hero__stage-reticle',
+          { opacity: 0, scale: 0.94 },
+          { opacity: 1, scale: 1, duration: 0.95, delay: 0.45, ease: 'power3.out' }
+        );
+        gsap.fromTo('.hero__telemetry-dock',
+          { opacity: 0, y: 28 },
+          { opacity: 1, y: 0, duration: 0.85, delay: 0.65, ease: 'power3.out' }
+        );
       }
     });
-  }
-
-  /* ============================================================
-     TYPEWRITER EFFECT
-     ============================================================ */
-  function initTypewriter() {
-    const el = document.getElementById('typewriter');
-    if (!el) return;
-
-    const phrases = [
-      'Full Stack Developer',
-      'Problem Solver',
-      'Competitive Programmer',
-      'Code Enthusiast',
-      'Tech Explorer'
-    ];
-    let phraseIdx = 0;
-    let charIdx = 0;
-    let isDeleting = false;
-    let isPaused = false;
-
-    function type() {
-      const current = phrases[phraseIdx];
-
-      if (isPaused) {
-        isPaused = false;
-        isDeleting = true;
-        setTimeout(type, 50);
-        return;
-      }
-
-      if (isDeleting) {
-        el.textContent = current.substring(0, charIdx - 1);
-        charIdx--;
-
-        if (charIdx === 0) {
-          isDeleting = false;
-          phraseIdx = (phraseIdx + 1) % phrases.length;
-          setTimeout(type, 300);
-          return;
-        }
-        setTimeout(type, 30);
-      } else {
-        el.textContent = current.substring(0, charIdx + 1);
-        charIdx++;
-
-        if (charIdx === current.length) {
-          isPaused = true;
-          setTimeout(type, 2000);
-          return;
-        }
-        setTimeout(type, 80);
-      }
-    }
-
-    // Start after loader
-    document.addEventListener('loaderDone', () => setTimeout(type, 800));
   }
 
   /* ============================================================
@@ -461,12 +427,11 @@
      ADVANCED 3D TILT CARDS & HOLOGRAPHIC SPECULAR GLARE
      ============================================================ */
   function initTiltCards() {
-    const cardSelectors = '.tilt-card, .project-reel-card, .badge-card, .cert-card, .profile-card, .stat-card, .about__image-wrapper';
+    const cardSelectors = '.tilt-card, .project-reel-card, .badge-card, .cert-card, .profile-card, .skill-card, .stat-card, .about__image-wrapper';
     const cards = document.querySelectorAll(cardSelectors);
     if (!cards.length || window.innerWidth < 768) return;
 
     cards.forEach((card) => {
-      // Inject holographic glare element if not present
       if (!card.querySelector('.card-glare') && !card.classList.contains('about__image-wrapper')) {
         const glare = document.createElement('div');
         glare.className = 'card-glare';
@@ -482,25 +447,38 @@
         const centerX = rect.width / 2;
         const centerY = rect.height / 2;
 
-        const maxTilt = card.classList.contains('about__image-wrapper') ? 14 : 11;
-        const rotateX = ((centerY - y) / centerY) * maxTilt;
-        const rotateY = ((x - centerX) / centerX) * maxTilt;
+        const maxTilt = card.classList.contains('about__image-wrapper') ? 14 : 11.5;
+        const normX = (x - centerX) / Math.max(1, centerX);
+        const normY = (y - centerY) / Math.max(1, centerY);
+        const rotateX = -normY * maxTilt;
+        const rotateY = normX * maxTilt;
+
+        // Dynamic directional shadow cast from elevated Z-plane titles & tags back onto card surface
+        const shadowX = (-normX * 14).toFixed(1);
+        const shadowY = (-normY * 14 + 8).toFixed(1);
+        const shadowBlur = (16 + Math.hypot(normX, normY) * 10).toFixed(1);
 
         const percentX = (x / rect.width) * 100;
         const percentY = (y / rect.height) * 100;
-        const distFromCenter = Math.hypot((x - centerX) / centerX, (y - centerY) / centerY);
+        const distFromCenter = Math.hypot(normX, normY);
         const glareOpacity = Math.min(0.65, distFromCenter * 0.55);
 
         card.style.setProperty('--glare-x', `${percentX.toFixed(1)}%`);
         card.style.setProperty('--glare-y', `${percentY.toFixed(1)}%`);
         card.style.setProperty('--glare-opacity', glareOpacity.toFixed(2));
+        card.style.setProperty('--tilt-shadow-x', `${shadowX}px`);
+        card.style.setProperty('--tilt-shadow-y', `${shadowY}px`);
+        card.style.setProperty('--tilt-shadow-blur', `${shadowBlur}px`);
 
-        card.style.transform = `perspective(1000px) rotateX(${rotateX.toFixed(2)}deg) rotateY(${rotateY.toFixed(2)}deg) translateZ(8px) scale3d(1.02, 1.02, 1.02)`;
+        card.style.transform = `perspective(1050px) rotateX(${rotateX.toFixed(2)}deg) rotateY(${rotateY.toFixed(2)}deg) translateZ(10px) scale3d(1.02, 1.02, 1.02)`;
       });
 
       card.addEventListener('mouseleave', () => {
-        card.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) translateZ(0px) scale3d(1, 1, 1)';
+        card.style.transform = 'perspective(1050px) rotateX(0deg) rotateY(0deg) translateZ(0px) scale3d(1, 1, 1)';
         card.style.setProperty('--glare-opacity', '0');
+        card.style.setProperty('--tilt-shadow-x', '0px');
+        card.style.setProperty('--tilt-shadow-y', '8px');
+        card.style.setProperty('--tilt-shadow-blur', '18px');
       });
     });
   }
@@ -734,153 +712,6 @@
   /* Magnetic hover effect is integrated into Quantum Fluid Jelly */
   function initMagnetic() {
     // Handled seamlessly within initCursor with fluid physics
-  }
-
-  /* ============================================================
-     LIVE CODING STATS TRACKING & AUTO-UPDATES
-     ============================================================ */
-  function initLiveCodingStats() {
-    const bannerStatus = document.getElementById('stats-sync-status');
-    const statElements = document.querySelectorAll('[data-stat]');
-    if (!statElements.length) return;
-
-    function animateValue(el, start, end, duration = 1200) {
-      if (isNaN(end)) {
-        el.textContent = end;
-        return;
-      }
-      const range = end - start;
-      const startTime = performance.now();
-
-      function update(now) {
-        const elapsed = now - startTime;
-        const progress = Math.min(elapsed / duration, 1);
-        const easeOutExpo = 1 - Math.pow(2, -10 * progress);
-        const current = Math.round(start + range * easeOutExpo);
-        el.textContent = current.toLocaleString();
-        if (progress < 1) {
-          requestAnimationFrame(update);
-        } else {
-          el.textContent = end.toLocaleString();
-        }
-      }
-      requestAnimationFrame(update);
-    }
-
-    async function fetchStats() {
-      try {
-        if (bannerStatus) bannerStatus.textContent = 'Syncing...';
-        const res = await fetch('/api/coding-stats');
-        if (!res.ok) throw new Error('API route unavailable');
-        const data = await res.json();
-
-        applyStats(data);
-        if (bannerStatus) {
-          bannerStatus.textContent = 'Live Synced ✓';
-          bannerStatus.style.color = '#10b981';
-        }
-      } catch (err) {
-        tryFallbackClientFetch();
-      }
-    }
-
-    function applyStats(data) {
-      const mappings = {
-        'leetcode-solved': data.leetcode?.solved,
-        'leetcode-rating': data.leetcode?.rating,
-        'leetcode-contests': data.leetcode?.contests,
-        'codechef-solved': data.codechef?.solved,
-        'codechef-rating': data.codechef?.rating,
-        'codechef-contests': data.codechef?.contests,
-        'codeforces-rating': data.codeforces?.rating || '1200',
-        'codeforces-contests': data.codeforces?.contests !== undefined ? data.codeforces.contests : 0,
-        'codeforces-rank': data.codeforces?.rank || 'Active',
-        'github-repos': data.github?.repos,
-        'github-commits': '230+',
-        'github-status': 'Active',
-        'gfg-solved': data.gfg?.solved || '35+',
-        'gfg-score': data.gfg?.score || '120+',
-        'credly-badges': data.credly?.badges || 3
-      };
-
-      statElements.forEach((el) => {
-        const key = el.getAttribute('data-stat');
-        const targetVal = mappings[key];
-        if (targetVal !== undefined && targetVal !== null) {
-          const currentText = el.textContent.trim().replace(/[^0-9]/g, '');
-          const currentNum = parseInt(currentText, 10);
-          const targetNum = typeof targetVal === 'number' ? targetVal : parseInt(String(targetVal).replace(/[^0-9]/g, ''), 10);
-
-          if (!isNaN(currentNum) && !isNaN(targetNum)) {
-            if (currentNum !== targetNum) {
-              animateValue(el, currentNum, targetNum);
-            } else {
-              el.textContent = targetNum.toLocaleString();
-            }
-          } else {
-            el.textContent = targetVal;
-          }
-        }
-      });
-    }
-
-    async function tryFallbackClientFetch() {
-      try {
-        const postData = JSON.stringify({
-          query: `query getUserProfile($username: String!) {
-            matchedUser(username: $username) {
-              submitStatsGlobal { acSubmissionNum { difficulty count } }
-            }
-            userContestRanking(username: $username) {
-              attendedContestsCount
-              rating
-            }
-          }`,
-          variables: { username: "k_v_akhilesh" }
-        });
-
-        const lcRes = await fetch('https://leetcode.com/graphql', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: postData
-        });
-        if (lcRes.ok) {
-          const lcData = await lcRes.json();
-          const ac = lcData.data?.matchedUser?.submitStatsGlobal?.acSubmissionNum;
-          const all = ac?.find(x => x.difficulty === 'All');
-          const contest = lcData.data?.userContestRanking;
-
-          if (all) {
-            const el = document.querySelector('[data-stat="leetcode-solved"]');
-            if (el) animateValue(el, parseInt(el.textContent, 10) || 0, all.count);
-          }
-          if (contest?.rating) {
-            const el = document.querySelector('[data-stat="leetcode-rating"]');
-            if (el) animateValue(el, parseInt(el.textContent, 10) || 0, Math.round(contest.rating));
-          }
-          if (contest?.attendedContestsCount) {
-            const el = document.querySelector('[data-stat="leetcode-contests"]');
-            if (el) animateValue(el, parseInt(el.textContent, 10) || 0, contest.attendedContestsCount);
-          }
-        }
-        if (bannerStatus) bannerStatus.textContent = 'Live Synced ✓';
-      } catch (e) {
-        if (bannerStatus) bannerStatus.textContent = 'Tracked (Cached)';
-      }
-    }
-
-    const profilesSection = document.getElementById('profiles');
-    if (profilesSection && 'IntersectionObserver' in window) {
-      const observer = new IntersectionObserver((entries) => {
-        if (entries[0].isIntersecting) {
-          fetchStats();
-          observer.disconnect();
-        }
-      }, { rootMargin: '100px' });
-      observer.observe(profilesSection);
-    } else {
-      fetchStats();
-    }
   }
 
   /* ============================================================
@@ -1437,7 +1268,12 @@
      LIVE CODING STATS (Multi-Tier Dynamic Hydration)
      ============================================================ */
   function initLiveCodingStats() {
-    if (!window.location.protocol.startsWith('http')) return;
+    const embeddedStats = {
+      leetcode: { solved: 185, rating: 1403, contests: 2, easy: 159, medium: 26, hard: 0 },
+      codechef: { solved: 483, rating: 1205, contests: 14, division: 'Div 4' },
+      codeforces: { rating: 1200, contests: 0, rank: 'Active' },
+      github: { repos: 7, commits: '240+' }
+    };
 
     function applyStats(data) {
       if (!data) return;
@@ -1484,45 +1320,35 @@
       }
     }
 
-    // 1. Try local Node.js API endpoint first
-    fetch('/api/coding-stats')
-      .then(res => {
-        if (!res.ok) throw new Error('API route not available');
-        return res.json();
-      })
-      .then(data => applyStats(data))
-      .catch(() => {
-        // 2. Fallback to static stats.json (for GitHub Pages static hosting)
-        fetch('stats.json')
-          .then(res => res.ok ? res.json() : null)
-          .then(data => applyStats(data))
-          .catch(() => { });
-      });
+    // Apply grounded stats baseline immediately
+    applyStats(embeddedStats);
 
-    // 3. Client-side real-time GitHub fetch (CORS supported by GitHub API)
-    fetch('https://api.github.com/users/kamepalliakhilesh-cpu')
-      .then(res => res.ok ? res.json() : null)
-      .then(gh => {
-        if (gh && gh.public_repos !== undefined) {
-          const reposEl = document.querySelector('[data-stat="github-repos"]');
-          if (reposEl) reposEl.textContent = gh.public_repos;
-        }
-      })
-      .catch(() => { });
-
-    // 4. Client-side real-time LeetCode fetch (Public CORS Proxy)
-    fetch('https://leetcode-api-faisalshohag.vercel.app/k_v_akhilesh')
-      .then(res => res.ok ? res.json() : null)
-      .then(lc => {
-        if (lc && lc.totalSolved !== undefined) {
-          const solvedEl = document.querySelector('[data-stat="leetcode-solved"]');
-          if (solvedEl) solvedEl.textContent = lc.totalSolved;
-          if (typeof window.updateLeetCodeDonut === 'function') {
-            window.updateLeetCodeDonut(lc.easySolved || 159, lc.mediumSolved || 26, lc.hardSolved || 0);
+    try {
+      // 3. Client-side real-time GitHub fetch (CORS supported by GitHub API)
+      fetch('https://api.github.com/users/kamepalliakhilesh-cpu')
+        .then(res => res.ok ? res.json() : null)
+        .then(gh => {
+          if (gh && gh.public_repos !== undefined) {
+            const reposEl = document.querySelector('[data-stat="github-repos"]');
+            if (reposEl) reposEl.textContent = gh.public_repos;
           }
-        }
-      })
-      .catch(() => { });
+        })
+        .catch(() => { });
+
+      // 4. Client-side real-time LeetCode fetch (Public CORS Proxy)
+      fetch('https://leetcode-api-faisalshohag.vercel.app/k_v_akhilesh')
+        .then(res => res.ok ? res.json() : null)
+        .then(lc => {
+          if (lc && lc.totalSolved !== undefined) {
+            const solvedEl = document.querySelector('[data-stat="leetcode-solved"]');
+            if (solvedEl) solvedEl.textContent = lc.totalSolved;
+            if (typeof window.updateLeetCodeDonut === 'function') {
+              window.updateLeetCodeDonut(lc.easySolved || 159, lc.mediumSolved || 26, lc.hardSolved || 0);
+            }
+          }
+        })
+        .catch(() => { });
+    } catch (err) { }
   }
 
   /* ============================================================
@@ -1530,7 +1356,7 @@
      ============================================================ */
   function initSoundEngine() {
     let audioCtx = null;
-    let isSoundEnabled = localStorage.getItem('cosmo_sound_enabled') === 'true';
+    let isSoundEnabled = false; try { isSoundEnabled = localStorage.getItem('cosmo_sound_enabled') === 'true'; } catch (e) {}
 
     const soundToggle = document.getElementById('sound-toggle');
     if (soundToggle) {
@@ -1539,7 +1365,7 @@
 
       soundToggle.addEventListener('click', () => {
         isSoundEnabled = !isSoundEnabled;
-        localStorage.setItem('cosmo_sound_enabled', isSoundEnabled ? 'true' : 'false');
+        try { localStorage.setItem('cosmo_sound_enabled', isSoundEnabled ? 'true' : 'false'); } catch (e) {}
         soundToggle.setAttribute('aria-pressed', isSoundEnabled ? 'true' : 'false');
         soundToggle.title = isSoundEnabled ? 'Audio Feedback (Sound ON)' : 'Audio Feedback (Muted by default)';
         if (isSoundEnabled) {
@@ -1649,7 +1475,37 @@
     let selectedIndex = 0;
     let filteredCommands = [];
 
+    function showSpatialToast(msg) {
+      let toast = document.getElementById('spatial-toast');
+      if (!toast) {
+        toast = document.createElement('div');
+        toast.id = 'spatial-toast';
+        toast.className = 'spatial-toast';
+        document.body.appendChild(toast);
+      }
+      toast.textContent = msg;
+      toast.classList.add('is-visible');
+      clearTimeout(toast._timer);
+      toast._timer = setTimeout(() => toast.classList.remove('is-visible'), 2600);
+    }
+
     const commands = [
+      // CV & Social Links (Housed directly in Command Palette per Two-Action Discipline)
+      {
+        id: 'cv-download-top', label: 'Download CV / Resume (Akhilesh_Kamepalli_Resume.pdf)', cat: 'CV & Social Links', icon: '📄', badge: 'PDF Resume', action: () => {
+          const a = document.createElement('a');
+          a.href = 'assets/Akhilesh_Kamepalli_Resume.pdf';
+          a.download = 'Akhilesh_Kamepalli_Resume.pdf';
+          a.click();
+          showSpatialToast('Downloading Akhilesh_Kamepalli_Resume.pdf...');
+        }
+      },
+      { id: 'soc-gh', label: 'GitHub — @kamepalliakhilesh-cpu', cat: 'CV & Social Links', icon: '🐙', badge: '7 Repos • 240+ Commits', action: () => window.open('https://github.com/kamepalliakhilesh-cpu', '_blank') },
+      { id: 'soc-lc', label: 'LeetCode — @k_v_akhilesh', cat: 'CV & Social Links', icon: '🧩', badge: '185+ Solved • 1403 Rating', action: () => window.open('https://leetcode.com/u/k_v_akhilesh/', '_blank') },
+      { id: 'soc-cc', label: 'CodeChef — @k_v_akhilesh', cat: 'CV & Social Links', icon: '⭐', badge: '483+ Solved • 1205 Rating', action: () => window.open('https://www.codechef.com/users/k_v_akhilesh', '_blank') },
+      { id: 'soc-hr', label: 'HackerRank — @k_v_akhilesh', cat: 'CV & Social Links', icon: '🏅', badge: 'Gold Problem Solving', action: () => window.open('https://www.hackerrank.com/profile/k_v_akhilesh', '_blank') },
+      { id: 'soc-credly', label: 'Credly Verified Accreditations', cat: 'CV & Social Links', icon: '🛡️', badge: 'Microsoft & Pearson', action: () => window.open('https://www.credly.com/users/akhilesh-kamepalli/badges', '_blank') },
+
       // Navigation
       { id: 'nav-home', label: 'Go to Home / Hero', cat: 'Navigation', icon: '🏠', badge: 'Section', action: () => scrollToId('hero') },
       { id: 'nav-about', label: 'About Akhilesh & Credentials', cat: 'Navigation', icon: '👤', badge: 'Section', action: () => scrollToId('about') },
@@ -1674,7 +1530,7 @@
         id: 'act-email', label: 'Copy Email Address (kamepalliakhilesh@gmail.com)', cat: 'Quick Actions', icon: '📋', badge: 'Clipboard', action: () => {
           navigator.clipboard.writeText('kamepalliakhilesh@gmail.com');
           if (window.soundEngine) window.soundEngine.playChime();
-          alert('Email copied to clipboard: kamepalliakhilesh@gmail.com');
+          showSpatialToast('Copied to clipboard: kamepalliakhilesh@gmail.com ✓');
         }
       },
       {
@@ -1816,6 +1672,8 @@
     }
 
     if (trigger) trigger.addEventListener('click', openPalette);
+    const heroTrigger = document.getElementById('hero-cmd-trigger');
+    if (heroTrigger) heroTrigger.addEventListener('click', openPalette);
     if (backdrop) {
       backdrop.addEventListener('click', closePalette);
       backdrop.addEventListener('wheel', (e) => e.preventDefault(), { passive: false });

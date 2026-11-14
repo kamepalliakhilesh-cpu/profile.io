@@ -71,6 +71,8 @@
 
   <!-- ======= THREE.JS CANVAS ======= -->
   <canvas id="three-canvas"></canvas>
+  <!-- ======= FOREGROUND DEPTH-OF-FIELD BOKEH CANVAS (True Z-Axis Sandwiching) ======= -->
+  <canvas id="fg-bokeh-canvas" aria-hidden="true"></canvas>
 
   <!-- ======= NAVBAR ======= -->
   <nav class="navbar" id="navbar">
@@ -150,73 +152,133 @@
   <!-- ======= MAIN CONTENT ======= -->
   <main>
 
-    <!-- ====== HERO ====== -->
+    <!-- ====== HERO (60/40 Spatial Split + 3-Tier Architecture + Bottom Telemetry Dock) ====== -->
     <section id="hero" class="hero section">
       <!-- Ambient Cosmic Glow (Volumetric Backlight Anchor) -->
       <div class="hero__ambient-glow" aria-hidden="true"></div>
 
-      <div class="hero__content">
-        <!-- Status Pill Badge -->
-        <div class="hero__badge">
-          <span class="hero__badge-pulse"></span>
-          <span class="hero__badge-text">Available for Roles &amp; High-Impact Projects</span>
-        </div>
+      <div class="container hero__grid">
+        <!-- LEFT 60%: 3-Tier Typography & Action Stack -->
+        <div class="hero__content">
+          <!-- TIER 1: Status Eyebrow -->
+          <div class="hero__eyebrow">
+            <span class="hero__eyebrow-status">
+              <span class="hero__badge-pulse"></span>
+              <span class="hero__badge-text">Available for Roles &amp; High-Impact Projects</span>
+            </span>
+            <span class="hero__eyebrow-sep" aria-hidden="true"></span>
+            <span class="hero__eyebrow-cred">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+              <span>Full-Stack &amp; AI Systems &bull; 668+ DSA Solved</span>
+            </span>
+          </div>
 
-        <p class="hero__greeting">Hello, I'm</p>
+          <!-- TIER 2: Statement Over Greeting & Metallic-Gradient Signature -->
+          <div class="hero__headline-block">
+            <div class="hero__signature-row">
+              <span class="hero__signature-tag">SYS.ARCHITECT // 2026</span>
+              <span class="hero__signature" id="hero-name">
+                <span class="hero__name-line hero__name--first">Akhilesh</span>
+                <span class="hero__name-line hero__name--last">Kamepalli</span>
+              </span>
+            </div>
+            <h1 class="hero__statement">
+              <span class="hero__statement-line">Engineering Intelligent</span>
+              <span class="hero__statement-line hero__statement--accent">Full-Stack &amp; Spatial Systems.</span>
+            </h1>
+            <p class="hero__subtitle">
+              Architecting low-latency web applications, AI-powered developer tooling, and high-throughput algorithmic systems from first principles.
+            </p>
+          </div>
 
-        <!-- Redesigned Hero Name -->
-        <h1 class="hero__name" id="hero-name">
-          <span class="hero__name-line hero__name--first">Akhilesh</span>
-          <span class="hero__name-line hero__name--last">Kamepalli</span>
-        </h1>
-
-        <!-- Interactive Terminal Role Capsule -->
-        <div class="hero__title">
-          <div class="hero__role-badge">
-            <span class="hero__role-prompt">&gt;</span>
-            <span class="typewriter" id="typewriter"></span>
-            <span class="typewriter__cursor">_</span>
+          <!-- TIER 3: Two-Action Discipline (1 Magnetic Primary CTA + 1 Minimal Ctrl+K Trigger) -->
+          <div class="hero__cta hero__actions">
+            <a href="#projects" class="btn btn--primary magnetic hero__cta-primary">
+              <span>Explore Engineering Work</span>
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+            </a>
+            <button type="button" class="hero__cmd-trigger magnetic" id="hero-cmd-trigger" aria-label="Open Command Palette for CV and Social Links (Ctrl+K)" title="Open CV, Social Links &amp; Command Palette (Ctrl+K)">
+              <span class="hero__cmd-trigger-icon">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M18 3a3 3 0 0 0-3 3v12a3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3H6a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3V6a3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3h12a3 3 0 0 0 3-3 3 3 0 0 0-3-3z"/>
+                </svg>
+              </span>
+              <span class="hero__cmd-trigger-text">CV &amp; Socials</span>
+              <kbd class="hero__cmd-trigger-kbd">Ctrl+K</kbd>
+            </button>
           </div>
         </div>
 
-        <!-- Academic & Credential Strip -->
-        <div class="hero__credentials">
-          <span class="cred-item">
-            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
-            B.Tech CSE (2nd Year) &bull; Aditya University
-          </span>
-        </div>
-
-        <!-- Premium CTA Group -->
-        <div class="hero__cta">
-          <a href="#projects" class="btn btn--primary magnetic">
-            <span>Explore My Work</span>
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-          </a>
-          <a href="assets/Akhilesh_Kamepalli_Resume.pdf" download="Akhilesh_Kamepalli_Resume.pdf" class="btn btn--secondary magnetic">
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-            <span>Download CV</span>
-          </a>
-          <a href="#contact" class="btn btn--ghost magnetic">
-            <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
-            <span>Get In Touch</span>
-          </a>
-        </div>
-
-        <!-- Grounded Micro-Highlights Ribbon -->
-        <div class="hero__highlights">
-          <span class="hero__highlight-pill">⚡ 14+ Technologies</span>
-          <span class="hero__highlight-dot">&bull;</span>
-          <span class="hero__highlight-pill">🏆 6+ Coding Profiles</span>
-          <span class="hero__highlight-dot">&bull;</span>
-          <span class="hero__highlight-pill">💻 Full Stack &amp; AI</span>
+        <!-- RIGHT 40%: Open Spatial Stage for Interactive 3D Focal Sculpture -->
+        <div class="hero__stage" id="hero-sculpture-stage" aria-label="Interactive 3D Focal Sculpture Stage">
+          <div class="hero__stage-reticle" id="hero-stage-interact" role="button" tabindex="0" aria-label="Pulse 3D Focal Sculpture" title="Click or move cursor to interact with 3D Gyroscopic Core">
+            <span class="stage-corner stage-corner--tl"></span>
+            <span class="stage-corner stage-corner--tr"></span>
+            <span class="stage-corner stage-corner--bl"></span>
+            <span class="stage-corner stage-corner--br"></span>
+            <div class="hero__stage-hud">
+              <div class="stage-hud__top">
+                <span class="stage-hud__tag">3D FOCAL SCULPTURE // GYRO_CORE</span>
+                <span class="stage-hud__live"><span class="stage-hud__dot"></span>INTERACTIVE</span>
+              </div>
+              <div class="stage-hud__controls" role="group" aria-label="3D Sculpture Harmonic Modes">
+                <button type="button" class="stage-mode-btn active" data-sculpture-mode="sphere">Sphere</button>
+                <button type="button" class="stage-mode-btn" data-sculpture-mode="lattice">Lattice</button>
+                <button type="button" class="stage-mode-btn" data-sculpture-mode="vortex">Vortex</button>
+                <button type="button" class="stage-pulse-btn" id="stage-pulse-btn" title="Emit Energy Pulse">⚡ Pulse</button>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
-      <a href="#about" class="hero__scroll" aria-label="Scroll to explore">
-        <span>Scroll to explore</span>
-        <div class="hero__scroll-line"></div>
-      </a>
+      <!-- BOTTOM TELEMETRY DOCK: Sleek Glassmorphic HUD Bar Anchored at Hero Viewport Bottom -->
+      <div class="hero__telemetry-dock glass-card" id="hero-telemetry-dock" role="region" aria-label="Portfolio Telemetry HUD">
+        <div class="telemetry-dock__inner">
+          <a href="#skills" class="telemetry-dock__item magnetic">
+            <span class="telemetry-dock__dot telemetry-dock__dot--cyan"></span>
+            <div class="telemetry-dock__content">
+              <span class="telemetry-dock__value">⚡ 14+ Technologies</span>
+              <span class="telemetry-dock__label">Full Stack &bull; AI &bull; Cloud</span>
+            </div>
+          </a>
+
+          <span class="telemetry-dock__sep" aria-hidden="true"></span>
+
+          <a href="#profiles" class="telemetry-dock__item magnetic">
+            <span class="telemetry-dock__dot telemetry-dock__dot--amber"></span>
+            <div class="telemetry-dock__content">
+              <span class="telemetry-dock__value">🏆 6+ Coding Profiles</span>
+              <span class="telemetry-dock__label">668+ Solved &bull; 100-Day Streak</span>
+            </div>
+          </a>
+
+          <span class="telemetry-dock__sep" aria-hidden="true"></span>
+
+          <a href="#projects" class="telemetry-dock__item magnetic">
+            <span class="telemetry-dock__dot telemetry-dock__dot--indigo"></span>
+            <div class="telemetry-dock__content">
+              <span class="telemetry-dock__value">💻 Full Stack &amp; AI</span>
+              <span class="telemetry-dock__label">5 Production Systems &bull; 14 Certs</span>
+            </div>
+          </a>
+
+          <span class="telemetry-dock__sep telemetry-dock__sep--desktop" aria-hidden="true"></span>
+
+          <div class="telemetry-dock__item telemetry-dock__item--telemetry">
+            <span class="telemetry-dock__dot telemetry-dock__dot--emerald"></span>
+            <div class="telemetry-dock__content">
+              <span class="telemetry-dock__value" id="hud-particle-state">STATE: SPHERE_MESH</span>
+              <span class="telemetry-dock__label" id="hud-camera-coords">CAM Z: +28.0m &bull; FOG #030305</span>
+            </div>
+          </div>
+
+          <a href="#about" class="hero__scroll telemetry-dock__scroll magnetic" aria-label="Scroll to fly through 3D space">
+            <span>Fly Through Space</span>
+            <div class="hero__scroll-line"></div>
+          </a>
+        </div>
+      </div>
     </section>
 
     <!-- ====== ABOUT ====== -->
@@ -2400,6 +2462,33 @@
         <button type="button" class="cmd-palette__clear" id="cmd-palette-clear" aria-label="Clear input"
           style="display:none;">&times;</button>
         <kbd class="cmd-palette__esc">ESC</kbd>
+      </div>
+      <!-- Pinned CV & Social Links Bar (Two-Action Discipline Hub) -->
+      <div class="cmd-palette__quick-hub" aria-label="CV and Social Links Quick Access">
+        <a href="assets/Akhilesh_Kamepalli_Resume.pdf" download="Akhilesh_Kamepalli_Resume.pdf" class="cmd-hub-pill cmd-hub-pill--primary">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          <span>Download CV (PDF)</span>
+        </a>
+        <a href="https://github.com/kamepalliakhilesh-cpu" target="_blank" rel="noopener noreferrer" class="cmd-hub-pill">
+          <span>GitHub</span>
+          <span class="cmd-hub-pill__arrow">↗</span>
+        </a>
+        <a href="https://leetcode.com/u/k_v_akhilesh/" target="_blank" rel="noopener noreferrer" class="cmd-hub-pill">
+          <span>LeetCode</span>
+          <span class="cmd-hub-pill__arrow">↗</span>
+        </a>
+        <a href="https://www.codechef.com/users/k_v_akhilesh" target="_blank" rel="noopener noreferrer" class="cmd-hub-pill">
+          <span>CodeChef</span>
+          <span class="cmd-hub-pill__arrow">↗</span>
+        </a>
+        <a href="https://www.credly.com/users/akhilesh-kamepalli/badges" target="_blank" rel="noopener noreferrer" class="cmd-hub-pill">
+          <span>Credly</span>
+          <span class="cmd-hub-pill__arrow">↗</span>
+        </a>
+        <a href="mailto:kamepalliakhilesh@gmail.com" class="cmd-hub-pill">
+          <span>Email</span>
+          <span class="cmd-hub-pill__arrow">✉</span>
+        </a>
       </div>
       <div class="cmd-palette__body" id="cmd-palette-body">
         <!-- Rendered dynamically by app.js -->
