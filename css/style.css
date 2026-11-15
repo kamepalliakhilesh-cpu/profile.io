@@ -721,8 +721,8 @@ body {
 
 .hero__name-line {
   display: block;
-  opacity: 0;
-  transform: translateY(100%);
+  opacity: 1;
+  transform: translateY(0);
 }
 
 .hero__name-line.revealed {

@@ -20,7 +20,6 @@
   window.addEventListener('load', safeInit);
 
   function init() {
-    initLoader();
     initThemeToggle();
     initSmoothScroll();
     initScrollProgress();
@@ -52,39 +51,6 @@
     initCommandPalette();
     initDeveloperTerminal();
     initLeetCodeVisuals();
-  }
-
-  /* ============================================================
-     LOADER
-     ============================================================ */
-  function initLoader() {
-    const loader = document.getElementById('loader');
-    const fill = document.getElementById('loader-fill');
-    if (!loader || !fill) return;
-
-    let done = false;
-    function finishLoader() {
-      if (done) return;
-      done = true;
-      fill.style.width = '100%';
-      loader.classList.add('hidden');
-      document.dispatchEvent(new CustomEvent('loaderDone'));
-    }
-
-    let progress = 25;
-    fill.style.width = '25%';
-    const interval = setInterval(() => {
-      progress += 28;
-      if (progress >= 100) {
-        clearInterval(interval);
-        setTimeout(finishLoader, 180);
-      } else {
-        fill.style.width = progress + '%';
-      }
-    }, 80);
-
-    // Hard failsafe so preview always opens promptly
-    setTimeout(finishLoader, 900);
   }
 
   /* ============================================================
@@ -254,35 +220,31 @@
      HERO ANIMATIONS
      ============================================================ */
   function initHeroAnimations() {
-    document.addEventListener('loaderDone', () => {
-      const lines = document.querySelectorAll('.hero__name-line');
-      lines.forEach((line, i) => {
-        setTimeout(() => line.classList.add('revealed'), 150 + i * 160);
-      });
+    const lines = document.querySelectorAll('.hero__name-line');
+    lines.forEach((line) => line.classList.add('revealed'));
 
-      if (typeof gsap !== 'undefined') {
-        gsap.fromTo('.hero__eyebrow',
-          { opacity: 0, y: 18 },
-          { opacity: 1, y: 0, duration: 0.75, delay: 0.15, ease: 'power3.out' }
-        );
-        gsap.fromTo('.hero__headline-block',
-          { opacity: 0, y: 24 },
-          { opacity: 1, y: 0, duration: 0.85, delay: 0.3, ease: 'power3.out' }
-        );
-        gsap.fromTo('.hero__actions',
-          { opacity: 0, y: 20 },
-          { opacity: 1, y: 0, duration: 0.8, delay: 0.5, ease: 'power3.out' }
-        );
-        gsap.fromTo('.hero__stage-reticle',
-          { opacity: 0, scale: 0.94 },
-          { opacity: 1, scale: 1, duration: 0.95, delay: 0.45, ease: 'power3.out' }
-        );
-        gsap.fromTo('.hero__telemetry-dock',
-          { opacity: 0, y: 28 },
-          { opacity: 1, y: 0, duration: 0.85, delay: 0.65, ease: 'power3.out' }
-        );
-      }
-    });
+    if (typeof gsap !== 'undefined') {
+      gsap.fromTo('.hero__eyebrow',
+        { opacity: 0, y: 14 },
+        { opacity: 1, y: 0, duration: 0.45, delay: 0.02, ease: 'power3.out' }
+      );
+      gsap.fromTo('.hero__headline-block',
+        { opacity: 0, y: 18 },
+        { opacity: 1, y: 0, duration: 0.5, delay: 0.08, ease: 'power3.out' }
+      );
+      gsap.fromTo('.hero__actions',
+        { opacity: 0, y: 14 },
+        { opacity: 1, y: 0, duration: 0.5, delay: 0.14, ease: 'power3.out' }
+      );
+      gsap.fromTo('.hero__stage-reticle',
+        { opacity: 0, scale: 0.96 },
+        { opacity: 1, scale: 1, duration: 0.55, delay: 0.1, ease: 'power3.out' }
+      );
+      gsap.fromTo('.hero__telemetry-dock',
+        { opacity: 0, y: 18 },
+        { opacity: 1, y: 0, duration: 0.55, delay: 0.18, ease: 'power3.out' }
+      );
+    }
   }
 
   /* ============================================================
